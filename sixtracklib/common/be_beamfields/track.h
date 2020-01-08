@@ -170,27 +170,28 @@ SIXTRL_INLINE NS(track_status_t) NS(Track_particle_space_charge_coasting)(
 
         real_t qratio = 1.;// To be generalized for multi-ion!
         real_t charge = 
-	   qratio*NS(Particles_get_q0_value)( particles, particle_index )*SIXTRL_QELEM;
+          NS(Particles_get_q0_value)( particles, particle_index )*SIXTRL_QELEM;
 
         real_t x = NS(Particles_get_x_value)( particles, particle_index )
-	       	- scdata->x_co;
+            - scdata->x_co;
         real_t y = NS(Particles_get_y_value)( particles, particle_index )
-		- scdata->y_co;
+            - scdata->y_co;
         
-	real_t chi = NS(Particles_get_chi_value)( particles, particle_index );
-
+        real_t chi = NS(Particles_get_chi_value)( particles, particle_index );
+        real_t beta0 = NS(Particles_get_beta0_value)( particles, particle_index );
         real_t beta = NS(Particles_get_beta0_value)( particles, particle_index ) \
                         /NS(Particles_get_rvv_value)( particles, particle_index );
         real_t p0c = NS(Particles_get_p0c_value)( particles, particle_index )
-		*SIXTRL_QELEM;
+            *SIXTRL_QELEM;
 
         real_t Ex, Ey, Gx, Gy;
         NS(get_Ex_Ey_Gx_Gy_gauss)(x, y, scdata->sigma_x, scdata->sigma_y,
                 scdata->min_sigma_diff, 1,
                 &Ex, &Ey, &Gx, &Gy);
 
-	real_t fact_kick = chi * charge * charge * (1. - beta*beta) / p0c
-		* scdata->line_density * scdata->length;
+        real_t fact_kick = qratio * chi * charge * charge 
+        * (1. - beta0 * beta) / (p0c * beta)
+            * scdata->line_density * scdata->length;
         px += (fact_kick*Ex);
         py += (fact_kick*Ey);
 
@@ -239,31 +240,32 @@ SIXTRL_INLINE NS(track_status_t) NS(Track_particle_space_charge_bunched)(
 
         real_t qratio = 1.;// To be generalized for multi-ion!
         real_t charge = 
-	   qratio*NS(Particles_get_q0_value)( particles, particle_index )*SIXTRL_QELEM;
+          NS(Particles_get_q0_value)( particles, particle_index )*SIXTRL_QELEM;
 
         real_t x = NS(Particles_get_x_value)( particles, particle_index )
-	       	- scdata->x_co;
+           	- scdata->x_co;
         real_t y = NS(Particles_get_y_value)( particles, particle_index )
-		- scdata->y_co;
+            - scdata->y_co;
         real_t zeta = NS(Particles_get_zeta_value)( particles, particle_index );
         
-	real_t chi = NS(Particles_get_chi_value)( particles, particle_index );
-
+        real_t chi = NS(Particles_get_chi_value)( particles, particle_index );
+        real_t beta0 = NS(Particles_get_beta0_value)( particles, particle_index );
         real_t beta = NS(Particles_get_beta0_value)( particles, particle_index ) \
                         /NS(Particles_get_rvv_value)( particles, particle_index );
         real_t p0c = NS(Particles_get_p0c_value)( particles, particle_index )
-		*SIXTRL_QELEM;
+            *SIXTRL_QELEM;
 
         real_t Ex, Ey, Gx, Gy;
         NS(get_Ex_Ey_Gx_Gy_gauss)(x, y, scdata->sigma_x, scdata->sigma_y,
                 scdata->min_sigma_diff, 1,
                 &Ex, &Ey, &Gx, &Gy);
 
-	real_t fact_kick = chi * charge * charge * (1. - beta*beta)/p0c
-		* scdata->length * scdata->number_of_particles
-		/ (scdata -> bunchlength_rms * sqrt(2*SIXTRL_PI))
-		* exp(-0.5*(zeta /scdata->bunchlength_rms)
-				*(zeta /scdata->bunchlength_rms));
+        real_t fact_kick = chi * qratio * charge * charge 
+        * (1. - beta0 * beta) / (p0c * beta)
+        * scdata->length * scdata->number_of_particles
+        / (scdata -> bunchlength_rms * sqrt(2*SIXTRL_PI))
+        * exp(-0.5*(zeta /scdata->bunchlength_rms)
+            *(zeta /scdata->bunchlength_rms));
         px += (fact_kick*Ex);
         py += (fact_kick*Ey);
 
